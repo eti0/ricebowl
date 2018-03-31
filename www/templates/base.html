@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        {% if title %}
+        <title>{{ title }} — ricebowl</title>
+        {% else %}
+        <title>ricebowl</title>
+        {% endif %}
+        <link rel="stylesheet" href="/static/main.css">
+    </head>
+    <body>
+        <header>
+            <h1>ricebowl</h1>
+            <ul id="navigation">
+                <li><a href="/">home</a></li>
+                <li><a href="/submit">submit</a></li>
+                <li><a href="/vote">vote</a></li>
+                <li><a href="/about">about</a></li>
+            </ul>
+        </header>
+        {% block body %}
+        {% endblock %}
+        <footer>
+            &copy; 2018 rizon#rice
+        </footer>
+    </body>
+</html>

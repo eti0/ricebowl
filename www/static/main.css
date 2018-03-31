@@ -1,0 +1,54 @@
+html, body {
+    max-width: 680px;
+    height: 100%;
+    margin: auto;
+    padding: 10px;
+    background-color: #06090F;
+    color: white;
+    font-family: "Source Sans Pro", "Roboto", sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Roboto Slab", "Roboto Mono", serif;
+}
+
+a {
+    text-decoration: none;
+    color: #0ec4f2;
+}
+
+.code {
+    padding: 10px;
+    border: 1px solid #777;
+    background-color: #FFF0E0;
+    color: #06090F;
+}
+
+header {
+    text-align: center;
+    border-bottom: 1px solid #777;
+}
+
+h1 {
+    font-size: 3em;
+    margin: 10px;
+}
+
+#navigation {
+    padding: 0;
+}
+
+#navigation li {
+    display: inline;
+}
+
+#navigation li:not(:last-child)::after {
+    content: " — ";
+}
+
+footer {
+    margin-top: 60px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #777;
+}

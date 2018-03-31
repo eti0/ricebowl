@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block body %}
+<h2>Submitting</h2>
+<p>
+    When the next tournament begins, you can submit your screenshot by making a POST request to this page.
+    For example, using <strong>curl</strong>:
+</p>
+<pre class="code">
+curl -F "file=@screenshot.png&amp;key=&lt;your_key&gt;" http://rice.church/submit
+</pre>
+{% endblock %}
