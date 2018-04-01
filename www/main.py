@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from flask import Flask, render_template, request
-from flask.ext.markdown import Markdown
-from flask.ext.uploads import UploadSet, configure_uploads, IMAGES
+from flaskext.markdown import Markdown
+from flask_uploads import UploadSet, configure_uploads, IMAGES
 from werkzeug.utils import secure_filename
 import redis
 
@@ -19,8 +19,8 @@ def index():
 # write html input form according to this
 @app.route('/submit', methods=['GET', 'POST'])
 def submit():
-    key = request.form['key']
     if request.method == 'POST' and 'screenshot' in request.files:
+        key = request.form['key']
         filename = screenshots.save(request.files['screenshot'])
         r.set(key, filename)
         return filename
