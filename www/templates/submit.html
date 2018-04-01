@@ -12,14 +12,13 @@ curl -F "file=@screenshot.png&amp;key=&lt;your_key&gt;" http://rice.church/submi
 or <strong><a href="https://httpie.org">httpie</a></strong>:
 
 <pre class="code">
-httpie --form "http://rice.church/submit" file@screenshot.png key==&lt;your_key&gt;
+http --form "http://rice.church/submit" file@screenshot.png key=&lt;your_key&gt;
 </pre>
 
-or just use the upload button below
-<form method=POST enctype=multipart/form-data action="{{ url_for('submit') }}">
-    <input type=file name=screenshot>
+or you can just use the upload button below
+<form method="POST" enctype="multipart/form-data" action="{{ url_for('submit') }}">
+    <input type="file" name="screenshot">
+    <input type="hidden" name="key" value="">
     <input type="submit">
 </form>
-
-
 {% endblock %}
