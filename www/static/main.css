@@ -1,37 +1,59 @@
+/* import webfonts */
+@import url('https://fonts.googleapis.com/css?family=Noto+Serif|Roboto+Mono|Roboto:300,400,500,700');
+
+
+/* variables */
+:root {
+	--white: #fff;
+    --black: #000022;
+	--grey: #2d2d43;
+    --accent: #e1515f;
+}
+
+
+/* general */
 html, body {
     max-width: 680px;
     height: 100%;
     margin: auto;
     padding: 10px;
-    background-color: #06090F;
-    color: white;
-    font-family: "Source Sans Pro", "Roboto", sans-serif;
+    background-color: var(--white);
+    color: var(--black);
+    font-family: "Roboto", sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: "Roboto Slab", "Roboto Mono", serif;
+    font-family: "Roboto", serif;
 }
 
 a {
     text-decoration: none;
-    color: #0ec4f2;
+    color: var(--accent);
+}
+
+a:hover {
+	color: var(--black);
 }
 
 .code {
     padding: 10px;
-    border: 1px solid #777;
-    background-color: #FFF0E0;
-    color: #06090F;
+    border: 1px solid var(--grey);
+    background-color: var(--black);
+    color: var(--white);
+    font-family: "Roboto Mono", monospace;
+    font-size: small;
 }
 
 header {
     text-align: center;
-    border-bottom: 1px solid #777;
+    border-bottom: 2px solid var(--grey);
 }
 
 h1 {
     font-size: 3em;
     margin: 10px;
+    padding: 10px;
+    color: var(--black);
 }
 
 #navigation {
@@ -44,11 +66,18 @@ h1 {
 
 #navigation li:not(:last-child)::after {
     content: " — ";
+    color: var(--grey);
 }
 
 footer {
     margin-top: 60px;
     margin-bottom: 20px;
     text-align: center;
-    color: #777;
+    color: var(--grey);
+    font-size: small;
+}
+
+form {
+	margin-top: 10px;
+	background: var(--white);
 }
