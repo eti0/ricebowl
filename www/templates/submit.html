@@ -8,4 +8,10 @@
 <pre class="code">
 curl -F "file=@screenshot.png&amp;key=&lt;your_key&gt;" http://rice.church/submit
 </pre>
+
+or <strong><a href="https://httpie.org">httpie</a></strong>:
+
+<pre class="code">
+httpie --form "http://rice.church/submit" file@screenshot.png key==&lt;your_key&gt;
+</pre>
 {% endblock %}
