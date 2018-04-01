@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from flask import Flask, render_template, request
-from flaskext.markdown import Markdown
+from flask.ext.markdown import Markdown
 from flask.ext.uploads import UploadSet, configure_uploads, IMAGES
 from werkzeug.utils import secure_filename
 import redis
@@ -28,7 +28,6 @@ def submit():
 
 @app.route('/vote')
 def vote():
-    vote = 
     return render_template('vote.html', title='vote')
 
 @app.route('/about')
