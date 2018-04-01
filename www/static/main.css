@@ -4,9 +4,9 @@
 
 /* variables */
 :root {
-	--white: #fff;
+    --white: #fff;
     --black: #000022;
-	--grey: #2d2d43;
+    --grey: #2d2d43;
     --accent: #e1515f;
 }
 
@@ -32,7 +32,7 @@ a {
 }
 
 a:hover {
-	color: var(--black);
+    color: var(--black);
 }
 
 .code {
@@ -78,6 +78,6 @@ footer {
 }
 
 form {
-	margin-top: 10px;
-	background: var(--white);
+    margin-top: 10px;
+    background: var(--white);
 }
