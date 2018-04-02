@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block body %}
+<h2>Voting</h2>
+<p>
+    You can vote for someone's rice by making a POST request to this page:
+    <pre>curl -F for=<strong>nickname</strong> key=<strong>your_key</strong> https://rice.church/vote</pre>
+    You get only one vote, but you can change it as many times as you like before the time limit.
+</p>
+<h2>Gallery</h2>
+{% if not users %}
+    <p>There are no screenshots yet.</p>
+{% else %}
+    {% for user in users %}
+        <p class="screenshot">
+            <span class="nickname">{{ user.nickname }}</span>
+            <a href="{{ user.screenshot }}">
+                <img src="{{ user.screenshot }}" alt="{{ user.nickname }}'s screenshot" width="100%">
+            </a>
+        </p>
+    {% endfor %}
+{% endif %}
+{% endblock %}

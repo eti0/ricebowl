@@ -7,7 +7,7 @@
         {% else %}
         <title>ricebowl</title>
         {% endif %}
-        <link rel="stylesheet" href="/static/main.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
         <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     </head>
     <body>
@@ -19,6 +19,11 @@
                 <li><a href="/vote">vote</a></li>
             </ul>
         </header>
+        {% for success, message in get_flashed_messages(with_categories=true) %}
+        <div class="message {{ 'success' if success else 'error' }}">
+            {{ message }}
+        </div>
+        {% endfor %}
         {% block body %}
         {% endblock %}
         <footer>

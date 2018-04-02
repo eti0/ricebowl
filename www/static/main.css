@@ -6,7 +6,8 @@
 :root {
     --white: #fff;
     --black: #000022;
-    --grey: #2d2d43;
+    --grey: #3d3d48;
+    --lightgrey: #6b6ba0;
     --accent: #e1515f;
 }
 
@@ -35,7 +36,7 @@ a:hover {
     color: var(--black);
 }
 
-.code {
+pre {
     padding: 10px;
     border: 1px solid var(--grey);
     background-color: var(--black);
@@ -45,8 +46,8 @@ a:hover {
 }
 
 header {
-    text-align: center;
     border-bottom: 2px solid var(--grey);
+    text-align: center;
 }
 
 h1 {
@@ -69,15 +70,39 @@ h1 {
     color: var(--grey);
 }
 
+.message {
+    margin: 10px auto;
+    padding: 10px;
+    text-align: center;
+}
+
+.message.success {
+    background-color: #9bf7d5;
+}
+
+.message.error {
+    background-color: #f79ba4;
+}
+
 footer {
     margin-top: 60px;
     margin-bottom: 20px;
     text-align: center;
-    color: var(--grey);
+    color: var(--lightgrey);
     font-size: small;
 }
 
 form {
     margin-top: 10px;
     background: var(--white);
+}
+
+.screenshot {
+    margin: 20px auto;
+    text-align: center;
+}
+
+.screenshot .nickname {
+    line-height: 3;
+    font-weight: bold;
 }
