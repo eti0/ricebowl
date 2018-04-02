@@ -5,11 +5,11 @@
     When the next tournament begins, you can submit your screenshot by making a POST request to this page.
     For example, using <strong>curl</strong>:
 </p>
-<pre>curl -F file=@<strong>screenshot.png</strong> -F key=<strong>your_key</strong> https://rice.church/submit</pre>
-
-or <strong><a href="https://httpie.org">httpie</a></strong>:
-
-<pre>http --form https://rice.church/submit file@<strong>screenshot.png</strong> key=<strong>your_key</strong></pre>
+<pre>curl -F file=@<strong>screenshot.png</strong> -F key=<strong>your_key</strong> {{ url_for('submit', _external=True) }}</pre>
+<p>
+    or <strong><a href="https://httpie.org">httpie</a></strong>:
+</p>
+<pre>http --form {{ url_for('submit', _external=True) }} file@<strong>screenshot.png</strong> key=<strong>your_key</strong></pre>
 
 or you can just use the upload form below:
 <form method="POST" enctype="multipart/form-data" action="{{ url_for('submit') }}">

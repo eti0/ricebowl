@@ -3,7 +3,7 @@
 <h2>Voting</h2>
 <p>
     You can vote for someone's rice by making a POST request to this page:
-    <pre>curl -F for=<strong>nickname</strong> key=<strong>your_key</strong> https://rice.church/vote</pre>
+    <pre>curl -F for=<strong>nickname</strong> key=<strong>your_key</strong> {{ url_for('vote', _external=True) }}</pre>
     You get only one vote, but you can change it as many times as you like before the time limit.
 </p>
 <h2>Gallery</h2>

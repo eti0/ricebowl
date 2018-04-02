@@ -14,9 +14,9 @@
         <header>
             <h1>ricebowl &#127834;</h1>
             <ul id="navigation">
-                <li><a href="/">home</a></li>
-                <li><a href="/submit">submit</a></li>
-                <li><a href="/vote">vote</a></li>
+                <li><a href="{{ url_for('index') }}">home</a></li>
+                <li><a href="{{ url_for('submit') }}">submit</a></li>
+                <li><a href="{{ url_for('vote') }}">vote</a></li>
             </ul>
         </header>
         {% for success, message in get_flashed_messages(with_categories=true) %}
@@ -27,7 +27,7 @@
         {% block body %}
         {% endblock %}
         <footer>
-            rizon#rice - 2018
+            rizon#rice - 2018 - <a href="https://github.com/eti0/ricebowl">github</a>
         </footer>
     </body>
 </html>
