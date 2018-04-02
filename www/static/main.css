@@ -9,6 +9,8 @@
     --grey: #3d3d48;
     --lightgrey: #6b6ba0;
     --accent: #e1515f;
+    --success: #70d161;
+    --error: #e15b69;
 }
 
 
@@ -66,7 +68,7 @@ h1 {
 }
 
 #navigation li:not(:last-child)::after {
-    content: " — ";
+    content: " - ";
     color: var(--grey);
 }
 
@@ -77,11 +79,11 @@ h1 {
 }
 
 .message.success {
-    background-color: #9bf7d5;
+    background-color: var(--success);
 }
 
 .message.error {
-    background-color: #f79ba4;
+    background-color: var(--error);
 }
 
 footer {
