@@ -11,6 +11,7 @@ SERVER = ('irc.rizon.net', 6667)
 CHANNELS = []
 HIGHLIGHT_REGEX = re.compile(r'^\s*%s[ :,]+(.*)\s*$' % NICKNAME)
 ADMINS = ['icyphox', 'eti', 'nai']
+ADMIN_COMMANDS = ['add']
 
 class Bot(irc.bot.SingleServerIRCBot):
     def __init__(self, database):
@@ -27,7 +28,6 @@ class Bot(irc.bot.SingleServerIRCBot):
         nick = e.source.nick
         msg = e.arguments[0]
         self.enqueue_command(nick, nick, msg)
-        self.request_status(nick)
 
     def on_pubmsg(self, c, e):
         nick = e.source.nick
@@ -36,7 +36,6 @@ class Bot(irc.bot.SingleServerIRCBot):
         match = HIGHLIGHT_REGEX.match(msg)
         if match:
             self.enqueue_command(nick, target, match[1])
-            self.request_status(nick)
 
     def on_privnotice(self, c, e):
         nick = e.source.nick
@@ -45,9 +44,12 @@ class Bot(irc.bot.SingleServerIRCBot):
             args = msg.split(' ')
             if args[0].lower() == 'status':
                 target_nick, status = args[1:]
-                if status == '3' and target_nick in self.command_queue:
-                    while self.command_queue[target_nick]:
-                        target, cmd = self.command_queue[target_nick].pop(0)
+                if not target_nick in self.command_queue:
+                    return
+                if int(status) == 3:
+                    commands = list(self.command_queue[target_nick])
+                    del self.command_queue[target_nick]
+                    for target, cmd in commands:
                         self.command(target_nick, target, cmd)
                 else:
                     del self.command_queue[target_nick]
@@ -58,6 +60,7 @@ class Bot(irc.bot.SingleServerIRCBot):
 
     def enqueue_command(self, nick, target, cmd):
         if not nick in self.command_queue:
+            self.request_status(nick)
             self.command_queue[nick] = []
         self.command_queue[nick].append((target, cmd))
 
@@ -65,30 +68,29 @@ class Bot(irc.bot.SingleServerIRCBot):
         c = self.connection
         args = cmd.split()
         cmd = args.pop(0).lower()
+        if cmd in ADMIN_COMMANDS and not nick in ADMINS:
+            c.privmsg(target, "Only admins can use this command.")
+            return
         if cmd == 'ping':
             c.privmsg(target, 'pong')
         elif cmd == 'help':
             c.privmsg(target, "Help coming soon - for now, ask an admin.")
         elif cmd == 'add':
-            if nick in ADMINS:
-                if len(args) == 1:
-                    target_nick = args[0]
-                    with self.db as db:
-                        db.execute('insert into user(key, nickname) values (?, ?)', (str(uuid.uuid4()), target_nick))
-                    c.privmsg(target, "%s was added to the contest" % target_nick)
-                else:
-                    c.privmsg(target, "Syntax: add <nickname>")
+            if len(args) == 1:
+                target_nick = args[0]
+                key = str(uuid.uuid4())
+                with self.db as db:
+                    db.execute('insert into user(key, nickname) values (?, ?)', (key, target_nick))
+                c.privmsg(target, "%s was added to the contest" % target_nick)
+                c.privmsg(target_nick, "You were added to the contest with the key: %s" % key)
             else:
-                c.privmsg(target, "Only admins can use this command.")
+                c.privmsg(target, "Syntax: add <nickname>")
         elif cmd == 'list':
             users = self.db.execute('select nickname from user').fetchall()
-            nicknames = map(lambda x: x[0], users)
-            c.privmsg(target, "List of contestants: %s" % ", ".join(nicknames))
+            c.privmsg(target, "List of contestants: %s" % ", ".join(map(lambda x: x[0], users)))
         elif cmd == 'getkey':
             user = self.db.execute('select key from user where nickname = ?', (nick,)).fetchone()
             if user:
-                key, = user
-                c.privmsg(nick, "Your key is:")
-                c.privmsg(nick, key)
+                c.privmsg(nick, "Your key is: %s" % user[0])
             else:
                 c.privmsg(target, "You haven't joined the contest.")
