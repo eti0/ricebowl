@@ -1,5 +1,5 @@
 __pycache__/
 *.pyc
 .env/
-www/static/screenshots/
+www/screenshots/
 *.sqlite

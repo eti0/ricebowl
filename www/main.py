@@ -20,8 +20,8 @@ app.secret_key = str(uuid.uuid4())
 Markdown(app)
 
 # Uploads
+app.config['UPLOADS_DEFAULT_DEST'] = app.root_path
 screenshots = UploadSet('screenshots', ('jpg', 'jpeg', 'png', 'bmp'))
-app.config['UPLOADED_SCREENSHOTS_DEST'] = os.path.join(app.root_path, 'static/screenshots')
 configure_uploads(app, screenshots)
 patch_request_class(app, 8 * 1024 * 1024)
 
@@ -135,6 +135,10 @@ def admin():
         else:
             message, success = "Wrong action.", False
     return message + '\n'
+
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('not_found.html', title='404'), 404
 
 if __name__ == '__main__':
     app.run(debug=True)
