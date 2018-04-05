@@ -15,11 +15,12 @@ ADMIN_COMMANDS = ['add']
 
 class Bot(irc.bot.SingleServerIRCBot):
     def __init__(self, database):
-        irc.bot.SingleServerIRCBot.__init__(self, [SERVER], NICKNAME, NICKNAME)
-        self.db = sqlite3.connect(database, check_same_thread=False)
+        super().__init__([SERVER], NICKNAME, NICKNAME)
+        self.database = database
         self.command_queue = {}
 
     def on_welcome(self, c, e):
+        self.db = sqlite3.connect(self.database)
         c.privmsg('NickServ', 'identify %s' % PASSWORD)
         for channel in CHANNELS:
             c.join(channel)
@@ -76,15 +77,19 @@ class Bot(irc.bot.SingleServerIRCBot):
         elif cmd == 'help':
             c.privmsg(target, "Help coming soon - for now, ask an admin.")
         elif cmd == 'add':
-            if len(args) == 1:
-                target_nick = args[0]
-                key = str(uuid.uuid4())
+            if len(args) != 1:
+                c.privmsg(target, "Syntax: add <nickname>")
+                return
+            target_nick = args[0]
+            key = str(uuid.uuid4())
+            try:
                 with self.db as db:
                     db.execute('insert into user(key, nickname) values (?, ?)', (key, target_nick))
+            except sqlite3.IntegrityError:
+                c.privmsg(target, "%s is already in the contest." % target_nick)
+            else:
                 c.privmsg(target, "%s was added to the contest" % target_nick)
                 c.privmsg(target_nick, "You were added to the contest with the key: %s" % key)
-            else:
-                c.privmsg(target, "Syntax: add <nickname>")
         elif cmd == 'list':
             users = self.db.execute('select nickname from user').fetchall()
             c.privmsg(target, "List of contestants: %s" % ", ".join(map(lambda x: x[0], users)))
