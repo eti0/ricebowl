@@ -1,5 +1,5 @@
 /* import webfonts */
-@import url('https://fonts.googleapis.com/css?family=Noto+Serif|Roboto+Mono|Roboto:300,400,500,700');
+@import url('https://fonts.googleapis.com/css?family=Noto+Serif|Roboto+Mono:400,700|Roboto:400,700|Open+Sans:400,700');
 
 
 /* variables */
@@ -11,6 +11,9 @@
     --accent: #e1515f;
     --success: #70d161;
     --error: #e15b69;
+    --font-text: "Open Sans", sans-serif;
+    --font-title: "Roboto", serif;
+    --font-mono: "Roboto Mono", monospace;
 }
 
 
@@ -22,11 +25,11 @@ html, body {
     padding: 10px;
     background-color: var(--white);
     color: var(--black);
-    font-family: "Roboto", sans-serif;
+    font-family: var(--font-text);
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: "Roboto", serif;
+    font-family: var(--font-title);
 }
 
 a {
@@ -43,12 +46,11 @@ pre {
     border: 1px solid var(--grey);
     background-color: var(--black);
     color: var(--white);
-    font-family: "Roboto Mono", monospace;
+    font-family: var(--font-mono);
     font-size: small;
 }
 
 header {
-    border-bottom: 2px solid var(--grey);
     text-align: center;
 }
 
@@ -100,11 +102,22 @@ form {
 }
 
 .screenshot {
-    margin: 20px auto;
+    margin: 10px auto;
+    margin-bottom: 50px;
+}
+
+.info {
     text-align: center;
 }
 
-.screenshot .nickname {
-    line-height: 3;
+.info .nickname {
+    font-family: var(--font-title);
+    font-size: 1.3em;
     font-weight: bold;
+}
+
+.info .votes {
+    color: var(--grey);
+    font-size: 0.8em;
+    font-style: italic;
 }

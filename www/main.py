@@ -2,14 +2,14 @@
 import os
 import uuid
 import random
-import json
-from flask import Flask, render_template, flash, redirect, url_for, request
+import sqlite3
+from flask import *
 from flaskext.markdown import Markdown
-from flask_uploads import UploadSet, IMAGES, configure_uploads, patch_request_class
-import redis
+from flask_uploads import *
 
 # Admin token
 admin_token = str(uuid.uuid4())
+print("Admin token:", admin_token)
 
 # Flask
 app = Flask(__name__)
@@ -19,14 +19,28 @@ app.secret_key = str(uuid.uuid4())
 # Markdown
 Markdown(app)
 
-# Redis
-r = redis.Redis(decode_responses=True)
-
 # Uploads
 screenshots = UploadSet('screenshots', ('jpg', 'jpeg', 'png', 'bmp'))
 app.config['UPLOADED_SCREENSHOTS_DEST'] = os.path.join(app.root_path, 'static/screenshots')
 configure_uploads(app, screenshots)
-patch_request_class(app, 16 * 1024 * 1024)
+patch_request_class(app, 8 * 1024 * 1024)
+
+# Database
+
+DATABASE = os.path.join(app.root_path, 'db.sqlite')
+
+def get_db():
+    if not 'db' in g:
+        g.db = sqlite3.connect(DATABASE)
+        g.db.execute('create table if not exists user(key text primary key, nickname text, screenshot text, vote text)')
+    return g.db
+
+@app.teardown_appcontext
+def close_connection(e):
+    if 'db' in g:
+        g.db.close()
+
+# Routing
 
 @app.route('/')
 def index():
@@ -34,25 +48,26 @@ def index():
 
 @app.route('/submit', methods=['GET', 'POST'])
 def submit():
-    if request.method == 'POST' and 'screenshot' in request.files:
+    if request.method == 'POST':
         key = request.form.get('key')
-        if not r.exists(key):
-            message, success = 'Invalid key.', False
+        user = get_db().execute('select screenshot from user where key = ?', (key,)).fetchone()
+        if not user:
+            message, success = "Wrong key.", False
         else:
+            old_screenshot, = user
             try:
-                filename = screenshots.save(request.files['screenshot'])
+                screenshot = screenshots.save(request.files['screenshot'])
             except:
-                message, success = 'Invalid file.', False
+                message, success = "Invalid file.", False
             else:
-                user = json.loads(r.get(key))
-                old_screenshot = user.get('screenshot')
-                try:
-                    os.remove(screenshots.path(old_screenshot))
-                except:
-                    pass
-                user['screenshot'] = filename
-                r.set(key, json.dumps(user))
-                message, success = 'Uploaded!', True
+                if old_screenshot:
+                    try:
+                        os.remove(screenshots.path(old_screenshot))
+                    except:
+                        pass
+                with get_db() as db:
+                    db.execute('update user set screenshot = ? where key = ?', (screenshot, key))
+                message, success = "Uploaded!", True
         if 'from_form' in request.form:
             flash(message, success)
             return redirect(url_for('vote' if success else 'submit'))
@@ -61,48 +76,65 @@ def submit():
     else:
         return render_template('submit.html', title='submit')
 
-@app.route('/vote')
+@app.route('/vote', methods=['GET', 'POST'])
 def vote():
-    if request.method == 'POST' and 'for' in request.form:
+    if request.method == 'POST':
         key = request.form.get('key')
-        if not r.exists(key):
-            message, success = 'Invalid key.', False
+        vote_for = request.form.get('vote')
+        user = get_db().execute('select nickname from user where key = ?', (key,)).fetchone()
+        if not user:
+            message, success = "Wrong key.", False
         else:
-            voted_for = request.get('for')
-            user = json.loads(r.get(key))
-            user['vote'] = voted_for
-            r.set(key, json.dumps(user))
-            message, success = 'You voted for %s.' % voted_for, True
+            nickname, = user
+            if nickname == vote_for:
+                message, success = "You can't vote for yourself.", False
+            elif vote_for and not get_db().execute('select nickname from user where nickname = ?', (vote_for,)).fetchone():
+                message, success = "Wrong nickname: %s" % vote_for, False
+            else:
+                with get_db() as db:
+                    db.execute('update user set vote = ? where key = ?', (vote_for, key))
+                if vote_for:
+                    message, success = "You voted for: %s" % vote_for, True
+                else:
+                    message, success = "Your vote has been removed.", True
         return message + '\n'
     else:
         users = []
-        for key in r.keys():
-            user = json.loads(r.get(key))
-            if os.path.isfile(screenshots.path(user.get('screenshot', ''))):
-                users.append({ 'nickname': user['nickname'], 'screenshot': screenshots.url(user['screenshot']) })
-        random.shuffle(users)
+        query = 'select nickname, screenshot, (select count(*) from user as voter where user.nickname = voter.vote) as votes from user order by votes desc, random()'
+        for nickname, screenshot, votes in get_db().execute(query):
+            if screenshot and os.path.isfile(screenshots.path(screenshot)):
+                users.append({
+                    'nickname': nickname,
+                    'screenshot': screenshots.url(screenshot),
+                    'votes': votes
+                })
         return render_template('vote.html', title='vote', users=users)
 
 @app.route('/admin', methods=['POST'])
 def admin():
     if request.form.get('token') != admin_token:
-        return 'Wrong token.'
-    action = request.form.get('action').lower()
-    if action in ('add', 'get_key'):
-        nickname = request.form.get('nickname')
-        if not nickname:
-            return 'No nickname specified.'
-        if action == 'add':
-            key = str(uuid.uuid4())
-            r.set(key, json.dumps({ 'nickname': nickname }))
-            return '%s successfully added.' % nickname
-        elif action == 'get_key':
-            for key in r.keys():
-                user = json.loads(r.get(key))
-                if user['nickname'] == nickname:
-                    return key
-            return ''
+        message, success = "Wrong token.", False
+    else:
+        action = request.form.get('action').lower()
+        if action in ('add', 'get_key'):
+            nickname = request.form.get('nickname')
+            if not nickname:
+                message, success = "No nickname specified.", False
+            else:
+                if action == 'add':
+                    with get_db() as db:
+                        db.execute('insert into user(key, nickname) values (?, ?)', (str(uuid.uuid4()), nickname))
+                    message, success = "Added %s." % nickname, True
+                elif action == 'get_key':
+                    user = get_db().execute('select key from user where nickname = ?', (nickname,)).fetchone()
+                    if user:
+                        key, = user
+                        message, success = key, True
+                    else:
+                        message, success = "Wrong nickname: %s" % nickname, False
+        else:
+            message, success = "Wrong action.", False
+    return message + '\n'
 
 if __name__ == '__main__':
-    print('Admin token:', admin_token)
     app.run(debug=True)

@@ -3,7 +3,7 @@
 <h2>Voting</h2>
 <p>
     You can vote for someone's rice by making a POST request to this page:
-    <pre>curl -F for=<strong>nickname</strong> key=<strong>your_key</strong> {{ url_for('vote', _external=True) }}</pre>
+    <pre>curl -F vote=<strong>nickname</strong> -F key=<strong>your_key</strong> {{ url_for('vote', _external=True) }}</pre>
     You get only one vote, but you can change it as many times as you like before the time limit.
 </p>
 <h2>Gallery</h2>
@@ -11,12 +11,15 @@
     <p>There are no screenshots yet.</p>
 {% else %}
     {% for user in users %}
-        <p class="screenshot">
+        <div class="info">
             <span class="nickname">{{ user.nickname }}</span>
+            <span class="votes">{{ 'no' if not user.votes else user.votes }} vote{{ 's' if user.votes != 1 else '' }}</span>
+        </div>
+        <div class="screenshot">
             <a href="{{ user.screenshot }}">
                 <img src="{{ user.screenshot }}" alt="{{ user.nickname }}'s screenshot" width="100%">
             </a>
-        </p>
+        </div>
     {% endfor %}
 {% endif %}
 {% endblock %}
