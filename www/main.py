@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 import os
 import uuid
-import random
+import hashlib
 import sqlite3
+import threading
 from flask import *
 from flaskext.markdown import Markdown
 from flask_uploads import *
-
-# Admin token
-admin_token = str(uuid.uuid4())
-print("Admin token:", admin_token)
+import bot
 
 # Flask
 app = Flask(__name__)
@@ -26,12 +24,11 @@ configure_uploads(app, screenshots)
 patch_request_class(app, 8 * 1024 * 1024)
 
 # Database
-
-DATABASE = os.path.join(app.root_path, 'db.sqlite')
+database = os.path.join(app.root_path, 'db.sqlite')
 
 def get_db():
     if not 'db' in g:
-        g.db = sqlite3.connect(DATABASE)
+        g.db = sqlite3.connect(database)
         g.db.execute('create table if not exists user(key text primary key, nickname text, screenshot text, vote text)')
     return g.db
 
@@ -39,6 +36,10 @@ def get_db():
 def close_connection(e):
     if 'db' in g:
         g.db.close()
+
+# IRC bot
+ricebot = bot.Bot(database)
+threading.Thread(target=ricebot.start).start()
 
 # Routing
 
@@ -50,13 +51,14 @@ def index():
 def submit():
     if request.method == 'POST':
         key = request.form.get('key')
-        user = get_db().execute('select screenshot from user where key = ?', (key,)).fetchone()
+        user = get_db().execute('select nickname, screenshot from user where key = ?', (key,)).fetchone()
         if not user:
             message, success = "Wrong key.", False
         else:
-            old_screenshot, = user
+            nickname, old_screenshot = user
             try:
-                screenshot = screenshots.save(request.files['screenshot'])
+                hashed = hashlib.sha256(request.files['screenshot'].filename.encode()).hexdigest()[:8]
+                screenshot = screenshots.save(request.files['screenshot'], name='%s.' % hashed)
             except:
                 message, success = "Invalid file.", False
             else:
@@ -109,32 +111,6 @@ def vote():
                     'votes': votes
                 })
         return render_template('vote.html', title='vote', users=users)
-
-@app.route('/admin', methods=['POST'])
-def admin():
-    if request.form.get('token') != admin_token:
-        message, success = "Wrong token.", False
-    else:
-        action = request.form.get('action').lower()
-        if action in ('add', 'get_key'):
-            nickname = request.form.get('nickname')
-            if not nickname:
-                message, success = "No nickname specified.", False
-            else:
-                if action == 'add':
-                    with get_db() as db:
-                        db.execute('insert into user(key, nickname) values (?, ?)', (str(uuid.uuid4()), nickname))
-                    message, success = "Added %s." % nickname, True
-                elif action == 'get_key':
-                    user = get_db().execute('select key from user where nickname = ?', (nickname,)).fetchone()
-                    if user:
-                        key, = user
-                        message, success = key, True
-                    else:
-                        message, success = "Wrong nickname: %s" % nickname, False
-        else:
-            message, success = "Wrong action.", False
-    return message + '\n'
 
 @app.errorhandler(404)
 def not_found(error):
