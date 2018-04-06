@@ -4,7 +4,7 @@
 <p>
     You can vote for someone's rice by making a POST request to this page:
     <pre>curl -F vote=<strong>nickname</strong> -F key=<strong>your_key</strong> {{ url_for('vote', _external=True) }}</pre>
-    You get only one vote, but you can change it as many times as you like before the time limit.
+    You get only one vote, but you can change it as many times as you like before the time limit. Note that you cannot vote for yourself.
 </p>
 <h2>Gallery</h2>
 {% if not users %}

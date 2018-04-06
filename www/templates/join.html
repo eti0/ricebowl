@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block body %}
+    <h2>Joining</h2>
+    <p>
+    To join ricebowl, talk to a few people in <a href="https://qchat.rizon.net/?channels=rice">#rice@irc.rizon.net</a> so that we get to know you. When that is done, you can ask an admin to add you to the contest.<br>
+        You will then get a unique, secret key that you can use to <a href="{{ url_for('submit') }}">submit</a> your screenshot and <a href="{{ url_for('vote') }}">vote</a>.
+        You can ask <strong>ricebot</strong> for your key at any time with the <code><strong>getkey</strong></code> command.<br>
+        <br>
+        Current admins are: <strong>eti</strong>, <strong>nai</strong>, <strong>icyphox</strong>.
+    </p>
+{% endblock %}

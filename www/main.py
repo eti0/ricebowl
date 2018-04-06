@@ -47,6 +47,10 @@ threading.Thread(target=ricebot.start).start()
 def index():
     return render_template('index.html')
 
+@app.route('/join')
+def join():
+    return render_template('join.html', title='join')
+
 @app.route('/submit', methods=['GET', 'POST'])
 def submit():
     if request.method == 'POST':
