@@ -1,3 +1,4 @@
 Flask==0.12.2
 Flask-Markdown==0.3
 Flask-Uploads==0.2.1
+irc==16.2.1
